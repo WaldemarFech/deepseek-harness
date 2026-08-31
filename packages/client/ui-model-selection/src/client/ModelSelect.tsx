@@ -2,9 +2,9 @@
  * ModelSelect: the composer's named model seat (`conversation.input.model`).
  * Two-level selection per figma 496:26454's MenuDropdown: the root menu is
  * the Model / Effort row pair (label + current value + a right chevron),
- * each drilling into its own list — the provider-grouped model list over
- * the shared directory, and the effort levels. The trigger (313:14108's
- * ToggleButton) shows both: model name + effort in the caption tone.
+ * each drilling into its own list — a locally filterable provider-grouped
+ * model list over the shared directory, and the effort levels. The trigger
+ * (313:14108's ToggleButton) shows both: model name + effort in the caption tone.
  * Data and submission ride the SAME per-session ModelDirectory as the
  * /model popup; exact-model reasoning metadata and the selected effort come
  * from the Host rather than a client-owned vocabulary. A rejected selection
@@ -51,6 +51,7 @@ export function ModelSelect(
   )
   const [open, setOpen] = useState(false)
   const [pane, setPane] = useState<Pane>('root')
+  const [modelFilter, setModelFilter] = useState('')
   // The in-menu error strip serves catalog loads (its Retry re-runs the
   // load); a rejected SELECTION announces through the transient toast
   // instead, so the strip renders only while the latest failure-capable
@@ -75,6 +76,17 @@ export function ModelSelect(
           : { reasoningEffort: model.reasoning.defaultEffort },
       } satisfies ModelSelection,
     }))), [state.groups])
+  const normalizedModelFilter = modelFilter.trim().toLowerCase()
+  const filteredGroups = useMemo(() => normalizedModelFilter.length === 0
+    ? state.groups
+    : state.groups.flatMap((group) => {
+      const providerMatches = `${group.name} ${group.id}`.toLowerCase().includes(normalizedModelFilter)
+      const models = providerMatches
+        ? group.models
+        : group.models.filter(model => `${model.name} ${model.id}`.toLowerCase().includes(normalizedModelFilter))
+      return models.length === 0 ? [] : [{ ...group, models }]
+    }), [normalizedModelFilter, state.groups])
+  const filteredChoiceCount = filteredGroups.reduce((count, group) => count + group.models.length, 0)
   const selectedIndex = state.current === null
     ? -1
     : choices.findIndex(c => c.selection.provider === state.current?.provider && c.selection.model === state.current.model)
@@ -108,7 +120,10 @@ export function ModelSelect(
   useEffect(() => {
     if (!open) return
     const closeOutside = (event: MouseEvent): void => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
+      if (rootRef.current?.contains(event.target as Node)) return
+      setOpen(false)
+      setPane('root')
+      setModelFilter('')
     }
     document.addEventListener('mousedown', closeOutside)
     return () => { document.removeEventListener('mousedown', closeOutside) }
@@ -118,6 +133,7 @@ export function ModelSelect(
 
   const show = (): void => {
     setPane('root')
+    setModelFilter('')
     setOpen(true)
     reload()
   }
@@ -125,6 +141,7 @@ export function ModelSelect(
   const close = (restoreFocus = false): void => {
     setOpen(false)
     setPane('root')
+    setModelFilter('')
     if (restoreFocus) queueMicrotask(() => { triggerRef.current?.focus() })
   }
 
@@ -279,8 +296,18 @@ export function ModelSelect(
                   <button type="button" className={css.retry} onClick={reload}>{t('retry')}</button>
                 </div>
               ))}
+              <input
+                className={css.filter}
+                type="search"
+                placeholder={t('filter.placeholder')}
+                aria-label={t('filter.aria')}
+                value={modelFilter}
+                disabled={busy}
+                autoFocus
+                onChange={(event) => { setModelFilter(event.currentTarget.value) }}
+              />
               <div className={clsx(css.groups, 'scrollable')}>
-                {state.groups.map((group) => {
+                {filteredGroups.map((group) => {
                   const headingId = `${id}-${group.id}`
                   return (
                     <section role="group" aria-labelledby={headingId} className={css.group} key={group.id}>
@@ -314,6 +341,9 @@ export function ModelSelect(
               </div>
               {state.status === 'ready' && choices.length === 0 && (
                 <div className={css.empty}>{t('empty.models')}</div>
+              )}
+              {state.status === 'ready' && choices.length > 0 && filteredChoiceCount === 0 && (
+                <div className={css.empty}>{t('empty.filteredModels')}</div>
               )}
             </>
           )}
