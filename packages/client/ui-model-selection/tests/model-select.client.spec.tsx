@@ -142,6 +142,60 @@ describe('ModelSelect reasoning effort', () => {
     expect(screen.queryByText('Fast catalog description')).toBeNull()
   })
 
+  it('filters the grouped model list by model and provider text and resets on close', () => {
+    const directory = createSnapshotStore(state({
+      groups: [
+        {
+          id: 'deepseek-official',
+          name: 'DeepSeek',
+          models: [
+            { id: 'deepseek-v4-flash', name: 'DeepSeek-V4-Flash', reasoning },
+            { id: 'deepseek-v4-pro', name: 'DeepSeek-V4-Pro' },
+          ],
+        },
+        {
+          id: 'openrouter',
+          name: 'OpenRouter',
+          models: [{ id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4' }],
+        },
+      ],
+    }))
+    render(<ModelSelect
+      locked={false}
+      available
+      directory={directory}
+      load={vi.fn()}
+      select={vi.fn().mockResolvedValue(true)}
+      t={t}
+    />)
+
+    const trigger = screen.getByRole('button', { name: /选择模型，当前/ })
+    fireEvent.click(trigger)
+    fireEvent.click(screen.getByRole('menuitem', { name: /模型/ }))
+
+    const filter = screen.getByRole('searchbox', { name: '筛选模型' })
+    expect(document.activeElement).toBe(filter)
+    fireEvent.change(filter, { target: { value: 'pro' } })
+    expect(screen.queryByRole('menuitemradio', { name: 'DeepSeek-V4-Flash' })).toBeNull()
+    expect(screen.getByRole('menuitemradio', { name: 'DeepSeek-V4-Pro' })).toBeTruthy()
+    expect(screen.queryByRole('menuitemradio', { name: 'Claude Sonnet 4' })).toBeNull()
+
+    fireEvent.change(filter, { target: { value: 'openrouter' } })
+    expect(screen.queryByRole('menuitemradio', { name: 'DeepSeek-V4-Pro' })).toBeNull()
+    expect(screen.getByRole('menuitemradio', { name: 'Claude Sonnet 4' })).toBeTruthy()
+
+    fireEvent.change(filter, { target: { value: 'missing' } })
+    expect(screen.getByText('没有匹配的模型。')).toBeTruthy()
+
+    fireEvent.keyDown(filter, { key: 'Escape' })
+    expect(screen.queryByRole('searchbox', { name: '筛选模型' })).toBeNull()
+    fireEvent.keyDown(trigger, { key: 'Escape' })
+    fireEvent.click(trigger)
+    fireEvent.click(screen.getByRole('menuitem', { name: /模型/ }))
+    expect(screen.getByRole('searchbox', { name: '筛选模型' }).getAttribute('value')).toBe('')
+    expect(screen.getAllByRole('menuitemradio')).toHaveLength(3)
+  })
+
   it('shows loading until the catalog and Session projection are both ready', async () => {
     const directory = createSnapshotStore<ModelDirectoryState>(state({
       current: null,

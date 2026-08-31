@@ -136,6 +136,26 @@
   cursor: pointer;
 }
 
+.filter {
+  margin: 2px 2px 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--dsw-alias-border-inverted);
+  border-radius: 8px;
+  outline: none;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.filter:focus-visible {
+  border-color: var(--dsw-alias-border-l3);
+}
+
+.filter:disabled {
+  color: var(--dsw-alias-label-dimmed);
+}
+
 .groups {
   min-height: 0;
   overflow-y: auto;
