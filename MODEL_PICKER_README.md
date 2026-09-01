@@ -1,6 +1,6 @@
 ﻿# Model Picker Search Filter for DeepSeek Harness
 
-**Status: ✅ Production Ready - In Active Use**
+**Status: Production Ready - In Active Use**
 
 A searchable composer model pane that adds filtering to the model selection dropdown.
 
@@ -20,13 +20,13 @@ A searchable composer model pane that adds filtering to the model selection drop
 
 ### Option 1: Install from Git (Recommended)
 
-`ash
+```bash
 npm install -g "https://github.com/WaldemarFech/deepseek-harness.git#feat/model-picker-alpha4"
-`
+```
 
 ### Option 2: Build from Source
 
-`ash
+```bash
 # Clone the fork
 git clone -b feat/model-picker-alpha4 https://github.com/WaldemarFech/deepseek-harness.git
 cd deepseek-harness
@@ -41,14 +41,14 @@ pnpm run build
 # Pack and install
 npm pack
 npm install -g ./deepseek-ai-dsh-root-*.tgz
-`
+```
 
 ## Usage
 
 1. Start DSH web interface:
-   `ash
+   ```bash
    dsh web
-   `
+   ```
 
 2. Click on the model selection dropdown in the composer
 
@@ -61,20 +61,20 @@ npm install -g ./deepseek-ai-dsh-root-*.tgz
 
 ## Compatibility
 
-- ✅ DSH 0.1.2-alpha.4 (latest)
-- ✅ DSH 0.1.2-alpha.3
-- ✅ Works with all existing providers and plugins
-- ✅ No configuration changes required
+- DSH 0.1.2-alpha.4 (latest)
+- DSH 0.1.2-alpha.3
+- Works with all existing providers and plugins
+- No configuration changes required
 
 ## Technical Details
 
 ### Branch Information
 
-- **Branch:** eat/model-picker-alpha4
+- **Branch:** feat/model-picker-alpha4
 - **Based on:** upstream dsh-v0.1.2-alpha.4
 - **Cherry-picked commits:**
   - 72a4f5c - feat(web): filter composer model list
-  - 5d6492 - docs: add model picker filter screenshot
+  - a5d6492 - docs: add model picker filter screenshot
 
 ### Changes Made
 
@@ -97,7 +97,7 @@ npm install -g ./deepseek-ai-dsh-root-*.tgz
 
 This feature is ready for upstream integration. If the maintainers want to include it:
 
-1. Cherry-pick the commits from eat/model-picker-alpha4
+1. Cherry-pick the commits from feat/model-picker-alpha4
 2. Or manually apply the changes from the diff:
    [master...WaldemarFech:deepseek-harness:feat/model-picker-alpha4](https://github.com/WaldemarFech/deepseek-harness/compare/master...WaldemarFech:deepseek-harness:feat/model-picker-alpha4)
 
