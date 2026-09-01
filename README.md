@@ -61,3 +61,7 @@ For agents, follow [AGENTS.md](AGENTS.md).
 [MIT](LICENSE)
 
 Third-party dependencies and their licenses are disclosed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Model Picker Search Filter
+
+This fork includes a searchable model picker filter. See [MODEL_PICKER_README.md](MODEL_PICKER_README.md) for details and installation instructions.
